@@ -416,41 +416,54 @@ function renderMessages() {
   const count = $("#ucapan-count");
   if (!list) return;
 
-  const all = [...loadMessages(), ...SEED_MESSAGES].sort((a, b) => b.ts - a.ts);
+  const all = loadMessages().sort((a, b) => b.ts - a.ts);
   list.innerHTML = "";
-  all.forEach((m) => {
-    const item = document.createElement("div");
-    item.className = "u-item";
+    if (all.length === 0) {
+    list.innerHTML = `
+      <div class="u-empty">
+        Belum ada Komentar
+      </div>
+    `;
+  } else {
+    all.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "u-item";
 
-    const avatar = document.createElement("span");
-    avatar.className = "u-avatar";
-    avatar.textContent = (m.name || "?").trim().charAt(0).toUpperCase();
+      const avatar = document.createElement("span");
+      avatar.className = "u-avatar";
+      avatar.textContent = (m.name || "?").trim().charAt(0).toUpperCase();
 
-    const body = document.createElement("div");
-    body.className = "u-body";
+      const body = document.createElement("div");
+      body.className = "u-body";
 
-    const head = document.createElement("div");
-    head.className = "u-head";
-    const name = document.createElement("span");
-    name.className = "u-name";
-    name.textContent = m.name || "Anonim";
-    const badge = document.createElement("span");
-    badge.className = "u-badge " + badgeClass(m.attend);
-    badge.textContent = m.attend;
-    head.append(name, badge);
+      const head = document.createElement("div");
+      head.className = "u-head";
 
-    const time = document.createElement("div");
-    time.className = "u-time";
-    time.textContent = formatDate(m.ts) + (m.guests && m.guests !== "0" ? ` · ${m.guests} tamu` : "");
+      const name = document.createElement("span");
+      name.className = "u-name";
+      name.textContent = m.name || "Anonim";
 
-    const msg = document.createElement("p");
-    msg.className = "u-msg";
-    msg.textContent = m.message || "";
+      const badge = document.createElement("span");
+      badge.className = "u-badge " + badgeClass(m.attend);
+      badge.textContent = m.attend;
 
-    body.append(head, time, msg);
-    item.append(avatar, body);
-    list.append(item);
-  });
+      head.append(name, badge);
+
+      const time = document.createElement("div");
+      time.className = "u-time";
+      time.textContent =
+        formatDate(m.ts) +
+        (m.guests && m.guests !== "0" ? ` · ${m.guests} tamu` : "");
+
+      const msg = document.createElement("p");
+      msg.className = "u-msg";
+      msg.textContent = m.message || "";
+
+      body.append(head, time, msg);
+      item.append(avatar, body);
+      list.append(item);
+    });
+  }
 
   if (count) count.textContent = `(${all.length})`;
 }
