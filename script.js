@@ -12,11 +12,11 @@
 const CONFIG = {
   // Nomor rekening & e-wallet (SAAT INI MASIH CONTOH — ganti dengan yang asli!)
   bankAccounts: [
-    { brand: "Seabank",    type: "Transfer Bank",  number: "901485256971",    holder: "Atika Sapitri" },
-    { brand: "BCA",    type: "Transfer Bank",  number: "7617066139",    holder: "Atika Sapitri" },
+    { brand: "Seabank",   type: "Transfer Bank",  number: "901485256971",    holder: "Atika Sapitri" },
+    { brand: "BCA",       type: "Transfer Bank",  number: "7617066139",      holder: "Atika Sapitri" },
     
-    // { brand: "Krom Bank",    type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
-    // { brand: "Mandiri",    type: "Transfer Bank",  number: "1760007126012",    holder: "Septian Surya Andika" },
+    { brand: "Krom Bank", type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
+    { brand: "Mandiri",   type: "Transfer Bank",  number: "1760007126012",   holder: "Septian Surya Andika" },
     // { brand: "BCA Digital (Blu)",    type: "Transfer Bank",  number: "001314766833",    holder: "Septian Surya Andika" },
   
   ],
