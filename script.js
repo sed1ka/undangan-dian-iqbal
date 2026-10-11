@@ -30,13 +30,13 @@ const CONFIG = {
   //   phone: "0812-xxxx-xxxx",
   //   address: "Jl. Contoh Alamat No. 10, Kel. Air Putih, Kec. Tuah Madani, Kota Pekanbaru, Riau 28127",
   // },
-  // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google Sheets.
+  // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google S heets.
   // Biarkan kosong ("") untuk menyimpan ucapan hanya di perangkat tamu (localStorage).
   // Panduan lengkap ada di README.md.
   rsvpWebAppUrl: "",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
-  youtubeVideoId: "Ei5jGFSA1xg",
+  youtubeVideoId: "SpiMDfEgXe8",
 
   // Tanggal & waktu akad (WIB) — dipakai countdown & kalender
   weddingDateISO: "2026-11-07T10:00:00+07:00",
