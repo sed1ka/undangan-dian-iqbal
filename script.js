@@ -15,9 +15,9 @@ const CONFIG = {
     { brand: "Seabank",    type: "Transfer Bank",  number: "901485256971",    holder: "Atika Sapitri" },
     { brand: "BCA",    type: "Transfer Bank",  number: "7617066139",    holder: "Atika Sapitri" },
     
-    { brand: "Krom Bank",    type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
-    { brand: "Mandiri",    type: "Transfer Bank",  number: "1760007126012",    holder: "Septian Surya Andika" },
-    { brand: "BCA Digital (Blu)",    type: "Transfer Bank",  number: "001314766833",    holder: "Septian Surya Andika" },
+    // { brand: "Krom Bank",    type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
+    // { brand: "Mandiri",    type: "Transfer Bank",  number: "1760007126012",    holder: "Septian Surya Andika" },
+    // { brand: "BCA Digital (Blu)",    type: "Transfer Bank",  number: "001314766833",    holder: "Septian Surya Andika" },
   
   ],
   // ewallets: [
@@ -36,7 +36,7 @@ const CONFIG = {
   rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbx35dSRnrgWiB6L6tjY3boCWfLoGefH8CeCz8wef4JRAZc5LduNJmClGrHC_q5kDuQ-/exec",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
-  youtubeVideoId: "SpiMDfEgXe8",
+  youtubeVideoId: "dElRVQFqj-k",
 
   // Tanggal & waktu akad (WIB) — dipakai countdown & kalender
   weddingDateISO: "2026-11-07T10:00:00+07:00",
@@ -386,9 +386,6 @@ function initGift() {
    -------------------------------------------------------------------------- */
 const STORE_KEY = "di-ucapan-v1";
 const SEED_MESSAGES = [
-  { name: "Keluarga Besar Mempelai Wanita", attend: "Hadir", guests: "2", message: "Selamat menempuh hidup baru, Dian & Iqbal! Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.", ts: Date.now() - 3 * 86400000 },
-  { name: "Sahabat Kecil Iqbal", attend: "Hadir", guests: "1", message: "Akhirnya ya, Bro! Barakallahu lakuma wa baraka alaikuma. Sampai jumpa di hari bahagia!", ts: Date.now() - 2 * 86400000 },
-  { name: "Alumni SMA Negeri", attend: "Masih Ragu", guests: "1", message: "Semoga lancar acaranya! Kami usahakan datang, doa terbaik untuk kalian berdua.", ts: Date.now() - 86400000 },
 ];
 
 function loadMessages() {
