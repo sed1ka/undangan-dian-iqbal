@@ -33,7 +33,7 @@ const CONFIG = {
   // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google S heets.
   // Biarkan kosong ("") untuk menyimpan ucapan hanya di perangkat tamu (localStorage).
   // Panduan lengkap ada di README.md.
-  rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbx35dSRnrgWiB6L6tjY3boCWfLoGefH8CeCz8wef4JRAZc5LduNJmClGrHC_q5kDuQ-/exec",
+  rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbzckucgC9RpXTRfdclYYO7uGWl5k3o9e5EXwdgJ5tDwgKfBwn2zSGZAgti5pflTkys9/exec",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
   youtubeVideoId: "dElRVQFqj-k",
@@ -469,7 +469,7 @@ function renderMessages() {
 }
 
 function initRSVP() {
-  renderMessages();
+  loadMessagesFromServer();
   const form = $("#rsvp-form");
   if (!form) return;
 
@@ -504,12 +504,59 @@ function initRSVP() {
       try {
         await fetch(CONFIG.rsvpWebAppUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+          },
           body: JSON.stringify(data),
         });
-      } catch { /* offline: tetap tersimpan lokal */ }
+      } catch {
+        // Data lokal tetap tersedia jika pengiriman gagal.
+      }
+
+      // Ambil ulang data bersama setelah mencoba mengirim.
+      loadMessagesFromServer();
     }
   });
+}
+
+
+function loadMessagesFromServer() {
+  if (!CONFIG.rsvpWebAppUrl) {
+    renderMessages();
+    return;
+  }
+
+  const callbackName =
+    "rsvpCallback_" + Date.now() + "_" +
+    Math.random().toString(36).slice(2);
+
+  const script = document.createElement("script");
+
+  const cleanup = () => {
+    delete window[callbackName];
+    script.remove();
+  };
+
+  window[callbackName] = (result) => {
+    cleanup();
+
+    if (result?.success && Array.isArray(result.messages)) {
+      saveMessages(result.messages);
+    }
+
+    // Kalau gagal, tampilkan cache localStorage yang ada.
+    renderMessages();
+  };
+
+  script.onerror = () => {
+    cleanup();
+    renderMessages();
+  };
+
+  script.src =
+    `${CONFIG.rsvpWebAppUrl}?callback=${callbackName}`;
+
+  document.body.appendChild(script);
 }
 
 /* --------------------------------------------------------------------------
