@@ -12,29 +12,34 @@
 const CONFIG = {
   // Nomor rekening & e-wallet (SAAT INI MASIH CONTOH — ganti dengan yang asli!)
   bankAccounts: [
-    { brand: "Bank BCA",    type: "Transfer Bank",  number: "1234567890",    holder: "Dian Ayu Puspa Sari" },
-    { brand: "Bank Mandiri", type: "Transfer Bank", number: "1230007890123", holder: "Iqbal Pradana" },
+    { brand: "Seabank",    type: "Transfer Bank",  number: "901485256971",    holder: "Atika Sapitri" },
+    { brand: "BCA",    type: "Transfer Bank",  number: "7617066139",    holder: "Atika Sapitri" },
+    
+    { brand: "Krom Bank",    type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
+    { brand: "Mandiri",    type: "Transfer Bank",  number: "1760007126012",    holder: "Septian Surya Andika" },
+    { brand: "BCA Digital (Blu)",    type: "Transfer Bank",  number: "001314766833",    holder: "Septian Surya Andika" },
+  
   ],
-  ewallets: [
-    { brand: "DANA",  type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Dian Ayu Puspa Sari" },
-    { brand: "GoPay", type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Iqbal Pradana" },
-  ],
+  // ewallets: [
+  //   { brand: "DANA",  type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Dian Ayu Puspa Sari" },
+  //   { brand: "GoPay", type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Iqbal Pradana" },
+  // ],
   // Alamat pengiriman kado fisik
-  giftAddress: {
-    receiver: "Dian Ayu Puspa Sari",
-    phone: "0812-xxxx-xxxx",
-    address: "Jl. Contoh Alamat No. 10, Kel. Air Putih, Kec. Tuah Madani, Kota Pekanbaru, Riau 28127",
-  },
+  // giftAddress: {
+  //   receiver: "Dian Ayu Puspa Sari",
+  //   phone: "0812-xxxx-xxxx",
+  //   address: "Jl. Contoh Alamat No. 10, Kel. Air Putih, Kec. Tuah Madani, Kota Pekanbaru, Riau 28127",
+  // },
   // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google Sheets.
   // Biarkan kosong ("") untuk menyimpan ucapan hanya di perangkat tamu (localStorage).
   // Panduan lengkap ada di README.md.
   rsvpWebAppUrl: "",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
-  youtubeVideoId: "In8kDy_WU4s",
+  youtubeVideoId: "Ei5jGFSA1xg",
 
   // Tanggal & waktu akad (WIB) — dipakai countdown & kalender
-  weddingDateISO: "2027-01-10T08:00:00+07:00",
+  weddingDateISO: "2026-11-07T10:00:00+07:00",
 };
 
 /* --------------------------------------------------------------------------
@@ -345,28 +350,28 @@ function escapeHTML(str) {
 
 function initGift() {
   const wrap = $("#gift-cards");
-  const addrWrap = $("#gift-address");
+  // const addrWrap = $("#gift-address");
   if (wrap) {
     wrap.innerHTML = [...CONFIG.bankAccounts, ...CONFIG.ewallets]
       .map((acc) => giftCardHTML(acc))
       .join("");
   }
-  if (addrWrap) {
-    const a = CONFIG.giftAddress;
-    addrWrap.innerHTML = `
-      <article class="gift-card card gift-card--address">
-        <div class="gift-head">
-          <span class="gift-brand"><span class="g-dot"></span>Kirim Kado</span>
-          <span class="gift-type">Alamat Fisik</span>
-        </div>
-        <p class="gift-number">${escapeHTML(a.address)}</p>
-        <p class="gift-holder">Penerima: ${escapeHTML(a.receiver)} &middot; ${escapeHTML(a.phone)}</p>
-        <button class="gift-copy" type="button" data-copy="${escapeHTML(a.address)}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>
-          <span>Salin Alamat</span>
-        </button>
-      </article>`;
-  }
+  // if (addrWrap) {
+  //   const a = CONFIG.giftAddress;
+  //   addrWrap.innerHTML = `
+  //     <article class="gift-card card gift-card--address">
+  //       <div class="gift-head">
+  //         <span class="gift-brand"><span class="g-dot"></span>Kirim Kado</span>
+  //         <span class="gift-type">Alamat Fisik</span>
+  //       </div>
+  //       <p class="gift-number">${escapeHTML(a.address)}</p>
+  //       <p class="gift-holder">Penerima: ${escapeHTML(a.receiver)} &middot; ${escapeHTML(a.phone)}</p>
+  //       <button class="gift-copy" type="button" data-copy="${escapeHTML(a.address)}">
+  //         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>
+  //         <span>Salin Alamat</span>
+  //       </button>
+  //     </article>`;
+  // }
 
   document.addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-copy]");
