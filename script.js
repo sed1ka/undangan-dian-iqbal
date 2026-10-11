@@ -421,7 +421,7 @@ function renderMessages() {
     if (all.length === 0) {
     list.innerHTML = `
       <div class="u-empty">
-        Belum ada Komentar
+        Doa dan harapan Anda akan menjadi bagian indah dari perjalanan kami.
       </div>
     `;
   } else {
