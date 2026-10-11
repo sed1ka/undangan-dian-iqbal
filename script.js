@@ -33,7 +33,7 @@ const CONFIG = {
   // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google S heets.
   // Biarkan kosong ("") untuk menyimpan ucapan hanya di perangkat tamu (localStorage).
   // Panduan lengkap ada di README.md.
-  rsvpWebAppUrl: "",
+  rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbx35dSRnrgWiB6L6tjY3boCWfLoGefH8CeCz8wef4JRAZc5LduNJmClGrHC_q5kDuQ-/exec",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
   youtubeVideoId: "SpiMDfEgXe8",
@@ -352,7 +352,7 @@ function initGift() {
   const wrap = $("#gift-cards");
   // const addrWrap = $("#gift-address");
   if (wrap) {
-    wrap.innerHTML = [...CONFIG.bankAccounts, ...CONFIG.ewallets]
+    wrap.innerHTML = [...CONFIG.bankAccounts]
       .map((acc) => giftCardHTML(acc))
       .join("");
   }
