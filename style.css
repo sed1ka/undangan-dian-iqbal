@@ -317,7 +317,7 @@ section { scroll-margin-top: 16px; }
 .cover__guest-label { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-300); }
 .cover__guest-sub { font-size: 0.72rem; color: rgba(255, 244, 235, 0.85); margin-top: 4px; }
 .cover__guest-name {
-  font-family: var(--script);
+  font-family: var(--serif);
   font-size: clamp(1.7rem, 7vw, 2.1rem);
   color: #fff;
   line-height: 1.25;
