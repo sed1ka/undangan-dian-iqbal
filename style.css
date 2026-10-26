@@ -258,7 +258,7 @@ section { scroll-margin-top: 16px; }
 .cover__bg {
   position: absolute;
   inset: 0;
-  background-image: url("./assets/Septian Surya Andika - Atika Sapitri.webp");
+  background-image: url("https://tika-dika.netlify.app/assets/Septian Surya Andika - Atika Sapitri.webp");
   background-size: cover;
   background-position: center;
   transform: scale(1.06);
@@ -507,6 +507,14 @@ section { scroll-margin-top: 16px; }
   opacity: 0.85;
 }
 .gunungan svg { width: 100%; height: auto; }
+
+.gunungan-small {
+  width: 20px;
+  margin: 0 auto;
+  color: var(--gold-500);
+  opacity: 0.85;
+}
+.gunungan-small svg { width: 100%; height: auto; }
 
 @media (min-width: 860px) {
   .p-grid {
