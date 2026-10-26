@@ -258,7 +258,7 @@ section { scroll-margin-top: 16px; }
 .cover__bg {
   position: absolute;
   inset: 0;
-  background-image: url("./assets/Septian Surya Andika - Atika Sapitri.webp");
+  background-image: url("https://tika-dika.netlify.app/assets/Septian Surya Andika - Atika Sapitri.webp");
   background-size: cover;
   background-position: center;
   transform: scale(1.06);
