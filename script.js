@@ -36,7 +36,7 @@ const CONFIG = {
   rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbzckucgC9RpXTRfdclYYO7uGWl5k3o9e5EXwdgJ5tDwgKfBwn2zSGZAgti5pflTkys9/exec",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
-  youtubeVideoId: "dElRVQFqj-k",
+  youtubeVideoId: "viW0M5R2BLo",
 
   // Tanggal & waktu akad (WIB) — dipakai countdown & kalender
   weddingDateISO: "2026-11-07T10:00:00+07:00",
