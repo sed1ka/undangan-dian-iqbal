@@ -921,11 +921,12 @@ section { scroll-margin-top: 16px; }
 
 .yt-holder {
   position: fixed;
-  top: -12px; left: -12px;
-  width: 2px; height: 2px;
+  top: -220px; left: -220px;
+  width: 200px; height: 200px;
   opacity: 0;
   pointer-events: none;
 }
+.yt-holder iframe { width: 200px; height: 200px; border: 0; }
 
 /* Tombol musik melayang */
 .music-btn {

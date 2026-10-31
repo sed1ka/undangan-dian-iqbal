@@ -153,12 +153,25 @@ Keterangan ringkas:
 
 ## 🎵 Tentang Musik Latar
 
-Lagu diputar langsung dari **YouTube** (lagu *Mahalini x Nuca — Janji Kita*) memakai pemutar
-tersembunyi, sehingga tidak perlu file MP3 dan tidak memperbesar ukuran website.
+Kontrol musik hanya berupa tombol kecil **putar/jeda** di kanan atas. Tidak ada panel video,
+peringatan, toast, atau penjelasan error musik pada halaman undangan. Musik dicoba langsung
+saat **Buka Undangan** ditekan. Jika autoplay diblokir, situs mencoba lagi pada klik tamu
+berikutnya; setelah tamu menjeda musik, musik tidak dilanjutkan otomatis.
 
-Catatan kecil: sebagian HP (terutama iPhone) membatasi bunyi otomatis — karena itu musik sengaja
-dimulai tepat saat tamu **menekan tombol "Buka Undangan"** (tindakan menekan tombol dianggap
-izin oleh browser). Tombol **putar/jeda** melayang tetap tersedia di kanan atas.
+Sumber default tetap **YouTube** melalui `CONFIG.youtubeVideoId`. MP3 tidak wajib untuk mode
+ini, tetapi embed tersembunyi tidak dapat dijamin berputar di WebView. Origin, izin autoplay,
+dan referrer disertakan; JavaScript situs tidak bisa mengubah kebijakan aplikasi WebView.
+Perubahan ini tidak membuktikan bahwa pemutaran YouTube di Instagram sudah berhasil.
+
+Untuk musik latar tanpa ketergantungan pada embed YouTube, isi `CONFIG.musicAudioUrl` dengan
+URL langsung MP3/M4A, misalnya `/assets/lagu.mp3`, lalu sertakan file tersebut saat deploy.
+URL halaman YouTube bukan URL audio langsung. Jika diisi, situs memakai pemutar audio native
+melalui tombol yang sama dan tidak memuat YouTube. Saat ini nilainya kosong karena belum ada
+file audio di project. Kedua mode tetap tunduk pada pengaturan pemutaran media perangkat.
+
+Pemeriksaan logika musik: `node --test tests/music.test.cjs`.
+Uji pemutaran sebenarnya melalui HTTP/HTTPS pada Instagram / WebView dan browser perangkat
+asli. Pengujian Node hanya memeriksa logika, bukan membuktikan kompatibilitas WebView.
 
 ## 📊 Menyimpan Ucapan Tamu ke Google Sheets (Opsional)
 
@@ -174,7 +187,7 @@ dalam satu spreadsheet**:
      const sh = SpreadsheetApp.openById('GANTI_ID_SHEET').getSheets()[0];
      const d = JSON.parse(e.postData.contents);
      sh.appendRow([new Date(), d.name, d.attend, d.guests, d.message]);
-     return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+     return ContentService.createTextOutput(JSON.stringify({ ok: true })) 
        .setMimeType(ContentService.MimeType.JSON);
    }
    ```
