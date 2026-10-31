@@ -12,29 +12,38 @@
 const CONFIG = {
   // Nomor rekening & e-wallet (SAAT INI MASIH CONTOH — ganti dengan yang asli!)
   bankAccounts: [
-    { brand: "Bank BCA",    type: "Transfer Bank",  number: "1234567890",    holder: "Dian Ayu Puspa Sari" },
-    { brand: "Bank Mandiri", type: "Transfer Bank", number: "1230007890123", holder: "Iqbal Pradana" },
+    { brand: "Seabank",   type: "Transfer Bank",  number: "901485256971",    holder: "Atika Sapitri" },
+    { brand: "BCA",       type: "Transfer Bank",  number: "7617066139",      holder: "Atika Sapitri" },
+    
+    { brand: "Krom Bank", type: "Transfer Bank",  number: "770022112213",    holder: "Septian Surya Andika" },
+    { brand: "Mandiri",   type: "Transfer Bank",  number: "1760007126012",   holder: "Septian Surya Andika" },
+    // { brand: "BCA Digital (Blu)",    type: "Transfer Bank",  number: "001314766833",    holder: "Septian Surya Andika" },
+  
   ],
-  ewallets: [
-    { brand: "DANA",  type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Dian Ayu Puspa Sari" },
-    { brand: "GoPay", type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Iqbal Pradana" },
-  ],
+  // ewallets: [
+  //   { brand: "DANA",  type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Dian Ayu Puspa Sari" },
+  //   { brand: "GoPay", type: "E-Wallet", number: "0812-xxxx-xxxx", holder: "Iqbal Pradana" },
+  // ],
   // Alamat pengiriman kado fisik
-  giftAddress: {
-    receiver: "Dian Ayu Puspa Sari",
-    phone: "0812-xxxx-xxxx",
-    address: "Jl. Contoh Alamat No. 10, Kel. Air Putih, Kec. Tuah Madani, Kota Pekanbaru, Riau 28127",
-  },
-  // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google Sheets.
+  // giftAddress: {
+  //   receiver: "Dian Ayu Puspa Sari",
+  //   phone: "0812-xxxx-xxxx",
+  //   address: "Jl. Contoh Alamat No. 10, Kel. Air Putih, Kec. Tuah Madani, Kota Pekanbaru, Riau 28127",
+  // },
+  // OPSIONAL: URL Web App Google Apps Script untuk mencatat RSVP ke Google S heets.
   // Biarkan kosong ("") untuk menyimpan ucapan hanya di perangkat tamu (localStorage).
   // Panduan lengkap ada di README.md.
-  rsvpWebAppUrl: "",
+  rsvpWebAppUrl: "https://script.google.com/macros/s/AKfycbzckucgC9RpXTRfdclYYO7uGWl5k3o9e5EXwdgJ5tDwgKfBwn2zSGZAgti5pflTkys9/exec",
 
   // Lagu latar: MAHALINI X NUCA — JANJI KITA (via YouTube)
-  youtubeVideoId: "In8kDy_WU4s",
+  youtubeVideoId: "viW0M5R2BLo",
+
+  // Opsional: URL langsung MP3/M4A. Jika diisi, gunakan audio native tanpa YouTube.
+  // Contoh: "/assets/lagu.mp3". Kosong berarti tetap memakai YouTube.
+  musicAudioUrl: "/assets/song.m4a",
 
   // Tanggal & waktu akad (WIB) — dipakai countdown & kalender
-  weddingDateISO: "2027-01-10T08:00:00+07:00",
+  weddingDateISO: "2026-11-07T10:00:00+07:00",
 };
 
 /* --------------------------------------------------------------------------
@@ -116,80 +125,174 @@ function initCover() {
     document.body.classList.add("opened");
     cover.classList.add("leaving");
     window.setTimeout(() => cover.classList.add("gone"), 1100);
-    playMusic();      // mulai lagu setelah gestur pengguna (dibolehkan browser)
+    playMusic();      // coba mulai langsung dari gestur pengguna
     $("#beranda")?.scrollIntoView({ behavior: "auto" });
   });
 }
 
 /* --------------------------------------------------------------------------
-   3. Musik latar (YouTube IFrame API — hidden player)
+   3. Musik latar (tombol kecil, tanpa panel / pesan error)
    -------------------------------------------------------------------------- */
 let player = null;
 let playerReady = false;
+let backgroundAudio = null;
 let wantMusic = false;
-let userPaused = false;
+let musicPlaying = false;
+let musicStarting = false;
+let musicStartTimer = null;
+let musicAttemptId = 0;
+let youtubeApiScript = null;
+
+function setMusicPlaying(playing) {
+  musicPlaying = playing;
+  const btn = $("#btn-music");
+  btn?.classList.toggle("playing", playing);
+  btn?.setAttribute("aria-pressed", String(playing));
+  btn?.setAttribute("aria-label", playing ? "Jeda musik latar" : "Putar musik latar");
+}
+
+function resetMusicAttempt() {
+  musicAttemptId++;
+  clearTimeout(musicStartTimer);
+  musicStarting = false;
+  setMusicPlaying(false);
+}
+
+function pauseMusic() {
+  wantMusic = false;
+  resetMusicAttempt();
+  backgroundAudio?.pause();
+  if (playerReady) player.pauseVideo();
+}
+
+function loadYouTubeApi() {
+  if (window.YT?.Player) {
+    window.onYouTubeIframeAPIReady();
+  } else if (!youtubeApiScript) {
+    youtubeApiScript = document.createElement("script");
+    youtubeApiScript.src = "https://www.youtube.com/iframe_api";
+    youtubeApiScript.async = true;
+    youtubeApiScript.onerror = () => {
+      youtubeApiScript.remove();
+      youtubeApiScript = null;
+      resetMusicAttempt();
+    };
+    document.head.appendChild(youtubeApiScript);
+  }
+}
 
 function initMusic() {
+  $("#btn-music")?.addEventListener("click", () => {
+    if (musicPlaying || musicStarting) pauseMusic();
+    else playMusic();
+  });
+
+  // Jika autoplay ditolak, coba lagi pada klik pengguna berikutnya.
+  // Tidak dipanggil setelah tamu sengaja menjeda musik.
+  document.addEventListener("click", (event) => {
+    if (event.target?.closest?.("#btn-music, #btn-open")) return;
+    if (wantMusic && !musicPlaying && !musicStarting) playMusic();
+  }, true);
+
+  if (CONFIG.musicAudioUrl) {
+    backgroundAudio = new Audio(CONFIG.musicAudioUrl);
+    backgroundAudio.preload = "auto";
+    backgroundAudio.loop = true;
+    backgroundAudio.volume = 0.8;
+    backgroundAudio.setAttribute("playsinline", "");
+    backgroundAudio.addEventListener("playing", () => {
+      if (!wantMusic) { backgroundAudio.pause(); return; }
+      clearTimeout(musicStartTimer);
+      musicStarting = false;
+      setMusicPlaying(true);
+    });
+    backgroundAudio.addEventListener("pause", () => {
+      if (!backgroundAudio.paused) return;
+      wantMusic = false;
+      resetMusicAttempt();
+    });
+    backgroundAudio.addEventListener("error", () => {
+      wantMusic = false;
+      resetMusicAttempt();
+    });
+    return;
+  }
+
+  const mount = $("#yt-player");
+  if (!mount) return;
+  const frame = document.createElement("iframe");
+  frame.id = "yt-player";
+  frame.width = "200";
+  frame.height = "200";
+  frame.tabIndex = -1;
+  frame.title = "Musik latar";
+  frame.setAttribute("allow", "autoplay; encrypted-media");
+  frame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+  const params = new URLSearchParams({
+    enablejsapi: "1", autoplay: "0", controls: "0", playsinline: "1",
+    disablekb: "1", rel: "0", loop: "1", playlist: CONFIG.youtubeVideoId,
+  });
+  if (/^https?:$/.test(window.location.protocol)) {
+    params.set("origin", window.location.origin);
+  }
+  frame.src = `https://www.youtube.com/embed/${encodeURIComponent(CONFIG.youtubeVideoId)}?${params}`;
+  mount.replaceWith(frame);
+
+  // Daftarkan callback sebelum mengunduh API untuk menghindari race condition.
   window.onYouTubeIframeAPIReady = function () {
-    player = new YT.Player("yt-player", {
-      videoId: CONFIG.youtubeVideoId,
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        playsinline: 1,
-        rel: 0,
-        modestbranding: 1,
-        loop: 1,
-        playlist: CONFIG.youtubeVideoId, // agar mengulang otomatis
-      },
+    if (player) return;
+    player = new window.YT.Player("yt-player", {
       events: {
-        onReady: () => {
+        onReady: (event) => {
+          player = event.target;
           playerReady = true;
-          player.setVolume?.(80);
-          if (wantMusic && !userPaused) playMusic();
+          if (wantMusic) playMusic();
         },
-        onStateChange: (e) => {
-          const btn = $("#btn-music");
-          if (e.data === YT.PlayerState.PLAYING) {
-            btn?.classList.add("playing");
-            btn?.setAttribute("aria-label", "Jeda musik latar");
-          } else if (e.data === YT.PlayerState.PAUSED) {
-            btn?.classList.remove("playing");
-            btn?.setAttribute("aria-label", "Putar musik latar");
-          } else if (e.data === YT.PlayerState.ENDED) {
-            player.seekTo(0);
-            player.playVideo();
+        onStateChange: (event) => {
+          if (event.data === window.YT.PlayerState.PLAYING) {
+            if (!wantMusic) { player.pauseVideo(); return; }
+            clearTimeout(musicStartTimer);
+            musicStarting = false;
+            setMusicPlaying(true);
+          } else if (event.data === window.YT.PlayerState.PAUSED) {
+            resetMusicAttempt();
+          } else if (event.data === window.YT.PlayerState.ENDED) {
+            setMusicPlaying(false); // loop ditangani oleh playlist YouTube.
           }
+        },
+        onAutoplayBlocked: () => resetMusicAttempt(),
+        onError: () => {
+          wantMusic = false;
+          resetMusicAttempt();
         },
       },
     });
   };
-
-  // Jika API sudah termuat sebelumnya (cache), langsung inisialisasi
-  if (window.YT && window.YT.Player) window.onYouTubeIframeAPIReady();
-
-  const btn = $("#btn-music");
-  btn?.addEventListener("click", () => {
-    if (!playerReady) {
-      wantMusic = true;
-      toast("Musik sedang dimuat, coba lagi sebentar…");
-      return;
-    }
-    const state = player.getPlayerState?.();
-    if (state === YT.PlayerState.PLAYING) {
-      userPaused = true;
-      player.pauseVideo();
-    } else {
-      userPaused = false;
-      player.playVideo();
-    }
-  });
+  loadYouTubeApi();
 }
 
 function playMusic() {
+  const attemptId = ++musicAttemptId;
   wantMusic = true;
-  if (playerReady) player.playVideo();
+  musicStarting = true;
+  clearTimeout(musicStartTimer);
+  musicStartTimer = window.setTimeout(() => resetMusicAttempt(), 12000);
+
+  if (backgroundAudio) {
+    // play() dipanggil langsung dari klik, tanpa await / callback pemuatan.
+    const attempt = backgroundAudio.play();
+    attempt?.catch((error) => {
+      if (attemptId !== musicAttemptId || !wantMusic || error.name === "AbortError") return;
+      if (error.name !== "NotAllowedError") wantMusic = false;
+      resetMusicAttempt();
+    });
+  } else if (playerReady) {
+    player.unMute();
+    player.setVolume(80);
+    player.playVideo();
+  } else if (typeof window.onYouTubeIframeAPIReady === "function") {
+    loadYouTubeApi();
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -345,28 +448,28 @@ function escapeHTML(str) {
 
 function initGift() {
   const wrap = $("#gift-cards");
-  const addrWrap = $("#gift-address");
+  // const addrWrap = $("#gift-address");
   if (wrap) {
-    wrap.innerHTML = [...CONFIG.bankAccounts, ...CONFIG.ewallets]
+    wrap.innerHTML = [...CONFIG.bankAccounts]
       .map((acc) => giftCardHTML(acc))
       .join("");
   }
-  if (addrWrap) {
-    const a = CONFIG.giftAddress;
-    addrWrap.innerHTML = `
-      <article class="gift-card card gift-card--address">
-        <div class="gift-head">
-          <span class="gift-brand"><span class="g-dot"></span>Kirim Kado</span>
-          <span class="gift-type">Alamat Fisik</span>
-        </div>
-        <p class="gift-number">${escapeHTML(a.address)}</p>
-        <p class="gift-holder">Penerima: ${escapeHTML(a.receiver)} &middot; ${escapeHTML(a.phone)}</p>
-        <button class="gift-copy" type="button" data-copy="${escapeHTML(a.address)}">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>
-          <span>Salin Alamat</span>
-        </button>
-      </article>`;
-  }
+  // if (addrWrap) {
+  //   const a = CONFIG.giftAddress;
+  //   addrWrap.innerHTML = `
+  //     <article class="gift-card card gift-card--address">
+  //       <div class="gift-head">
+  //         <span class="gift-brand"><span class="g-dot"></span>Kirim Kado</span>
+  //         <span class="gift-type">Alamat Fisik</span>
+  //       </div>
+  //       <p class="gift-number">${escapeHTML(a.address)}</p>
+  //       <p class="gift-holder">Penerima: ${escapeHTML(a.receiver)} &middot; ${escapeHTML(a.phone)}</p>
+  //       <button class="gift-copy" type="button" data-copy="${escapeHTML(a.address)}">
+  //         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>
+  //         <span>Salin Alamat</span>
+  //       </button>
+  //     </article>`;
+  // }
 
   document.addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-copy]");
@@ -381,9 +484,6 @@ function initGift() {
    -------------------------------------------------------------------------- */
 const STORE_KEY = "di-ucapan-v1";
 const SEED_MESSAGES = [
-  { name: "Keluarga Besar Mempelai Wanita", attend: "Hadir", guests: "2", message: "Selamat menempuh hidup baru, Dian & Iqbal! Semoga menjadi keluarga yang sakinah, mawaddah, warahmah.", ts: Date.now() - 3 * 86400000 },
-  { name: "Sahabat Kecil Iqbal", attend: "Hadir", guests: "1", message: "Akhirnya ya, Bro! Barakallahu lakuma wa baraka alaikuma. Sampai jumpa di hari bahagia!", ts: Date.now() - 2 * 86400000 },
-  { name: "Alumni SMA Negeri", attend: "Masih Ragu", guests: "1", message: "Semoga lancar acaranya! Kami usahakan datang, doa terbaik untuk kalian berdua.", ts: Date.now() - 86400000 },
 ];
 
 function loadMessages() {
@@ -414,47 +514,60 @@ function renderMessages() {
   const count = $("#ucapan-count");
   if (!list) return;
 
-  const all = [...loadMessages(), ...SEED_MESSAGES].sort((a, b) => b.ts - a.ts);
+  const all = loadMessages().sort((a, b) => b.ts - a.ts);
   list.innerHTML = "";
-  all.forEach((m) => {
-    const item = document.createElement("div");
-    item.className = "u-item";
+    if (all.length === 0) {
+    list.innerHTML = `
+      <div class="u-empty">
+        Doa dan harapan Anda akan menjadi bagian indah dari perjalanan kami.
+      </div>
+    `;
+  } else {
+    all.forEach((m) => {
+      const item = document.createElement("div");
+      item.className = "u-item";
 
-    const avatar = document.createElement("span");
-    avatar.className = "u-avatar";
-    avatar.textContent = (m.name || "?").trim().charAt(0).toUpperCase();
+      const avatar = document.createElement("span");
+      avatar.className = "u-avatar";
+      avatar.textContent = (m.name || "?").trim().charAt(0).toUpperCase();
 
-    const body = document.createElement("div");
-    body.className = "u-body";
+      const body = document.createElement("div");
+      body.className = "u-body";
 
-    const head = document.createElement("div");
-    head.className = "u-head";
-    const name = document.createElement("span");
-    name.className = "u-name";
-    name.textContent = m.name || "Anonim";
-    const badge = document.createElement("span");
-    badge.className = "u-badge " + badgeClass(m.attend);
-    badge.textContent = m.attend;
-    head.append(name, badge);
+      const head = document.createElement("div");
+      head.className = "u-head";
 
-    const time = document.createElement("div");
-    time.className = "u-time";
-    time.textContent = formatDate(m.ts) + (m.guests && m.guests !== "0" ? ` · ${m.guests} tamu` : "");
+      const name = document.createElement("span");
+      name.className = "u-name";
+      name.textContent = m.name || "Anonim";
 
-    const msg = document.createElement("p");
-    msg.className = "u-msg";
-    msg.textContent = m.message || "";
+      const badge = document.createElement("span");
+      badge.className = "u-badge " + badgeClass(m.attend);
+      badge.textContent = m.attend;
 
-    body.append(head, time, msg);
-    item.append(avatar, body);
-    list.append(item);
-  });
+      head.append(name, badge);
+
+      const time = document.createElement("div");
+      time.className = "u-time";
+      time.textContent =
+        formatDate(m.ts) +
+        (m.guests && m.guests !== "0" ? ` · ${m.guests} tamu` : "");
+
+      const msg = document.createElement("p");
+      msg.className = "u-msg";
+      msg.textContent = m.message || "";
+
+      body.append(head, time, msg);
+      item.append(avatar, body);
+      list.append(item);
+    });
+  }
 
   if (count) count.textContent = `(${all.length})`;
 }
 
 function initRSVP() {
-  renderMessages();
+  loadMessagesFromServer();
   const form = $("#rsvp-form");
   if (!form) return;
 
@@ -489,12 +602,59 @@ function initRSVP() {
       try {
         await fetch(CONFIG.rsvpWebAppUrl, {
           method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+          },
           body: JSON.stringify(data),
         });
-      } catch { /* offline: tetap tersimpan lokal */ }
+      } catch {
+        // Data lokal tetap tersedia jika pengiriman gagal.
+      }
+
+      // Ambil ulang data bersama setelah mencoba mengirim.
+      loadMessagesFromServer();
     }
   });
+}
+
+
+function loadMessagesFromServer() {
+  if (!CONFIG.rsvpWebAppUrl) {
+    renderMessages();
+    return;
+  }
+
+  const callbackName =
+    "rsvpCallback_" + Date.now() + "_" +
+    Math.random().toString(36).slice(2);
+
+  const script = document.createElement("script");
+
+  const cleanup = () => {
+    delete window[callbackName];
+    script.remove();
+  };
+
+  window[callbackName] = (result) => {
+    cleanup();
+
+    if (result?.success && Array.isArray(result.messages)) {
+      saveMessages(result.messages);
+    }
+
+    // Kalau gagal, tampilkan cache localStorage yang ada.
+    renderMessages();
+  };
+
+  script.onerror = () => {
+    cleanup();
+    renderMessages();
+  };
+
+  script.src =
+    `${CONFIG.rsvpWebAppUrl}?callback=${callbackName}`;
+
+  document.body.appendChild(script);
 }
 
 /* --------------------------------------------------------------------------
