@@ -249,8 +249,7 @@ section { scroll-margin-top: 16px; }
   z-index: 200;
   display: grid;
   place-items: center;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1), opacity 1s ease;
 }
 .cover.leaving { transform: translateY(-100%); opacity: 0.6; pointer-events: none; }
